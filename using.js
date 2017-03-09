@@ -578,11 +578,7 @@ var using;
 
     // this property can be used to check if define is the using.js variant instead of the
     // AMD variant
-    Object.defineProperty(define, "using", {
-        get: function() {
-            return { "version" : "----VERSIONNR----.----BUILDNR----" };
-        }
-    });
+    define.using = true;
 
     /////////////////////////////////////////////////////////////////////////////////////////
     //
