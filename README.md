@@ -1,2 +1,2 @@
 # using.js
-Universal javascript dependency injection system.
+A cross-platform, expandable module loader for javascript.
