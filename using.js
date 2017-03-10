@@ -133,7 +133,7 @@ var using;
             }
         });
 
-        this.events = new Events(this);
+        this.events = new Emitter(this);
 
         // bind the fetch function to the loader function
         this.fetch = function(callback) {
@@ -198,7 +198,7 @@ var using;
             }
         });
 
-        this.events = new Events(this);
+        this.events = new Emitter(this);
 
         this.then = function(success, fail, bypassFactory) {
             var successClbk = success;
@@ -297,10 +297,10 @@ var using;
 
     /////////////////////////////////////////////////////////////////////////////////////////
     //
-    // Events class
+    // Emitter class
     //
     /////////////////////////////////////////////////////////////////////////////////////////
-    function Events(context) {
+    function Emitter(context) {
         var own = this;
         var callbacks = [];
 
@@ -634,7 +634,7 @@ var using;
         return handler;
     };
     // create static event emitter
-    using.events = new Events(using);
+    using.events = new Emitter(using);
 
     /////////////////////////////////////////////////////////////////////////////////////////
     //
