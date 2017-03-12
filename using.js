@@ -493,6 +493,13 @@ var using;
     // get a module by it's id (wildcard * allowed, takes highest alphanumeric match, takes
     // dots and slashes into account)
     define.cache.get = function (id) {
+        if (!id) {
+            var last = null;
+            for (var i in cache) {
+                last = cache[i];
+            }
+            return last;
+        }
         var asteriskIdx = id.indexOf("*");
         if (asteriskIdx > 0) {
             var cacheSorted = sortById(cache, "desc");
