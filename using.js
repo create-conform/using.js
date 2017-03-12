@@ -378,6 +378,7 @@ var using;
     /////////////////////////////////////////////////////////////////////////////////////////
     // in-memory cache that contains factories for javascript resources
     var cache = [];
+    var cacheCounter = 0;
 
     define = function(/* optional */ id, /* optional */ dependencies, factory) {
         var parameters = {};
@@ -482,12 +483,7 @@ var using;
         mod.factory = system? function(request) { return define.Loader.get(system).factory(mod, f, request); } : f;
 
         // create definition and add to memory cache
-        if (id) {
-            cache[id] = mod;
-        }
-        else {
-            cache.push(mod);
-        }
+        cache[id || "" + cacheCounter++] = mod;
     };
     // parameters for overriding default function parameters when calling define, or for
     // adding custom parameters that the loader can read
