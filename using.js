@@ -426,7 +426,7 @@ var using;
             else {
                 for (var i=0;i<dependencies.length;i++) {
                     if (Object.prototype.toString.call(dependencies[i]) !== "[object String]" && Object.prototype.toString.call(dependencies[i]) !== "[object Object]") {
-                        throw new TypeError(errSrc + "Optional parameter 'dependencies' should be an array of objects of type 'String'.");
+                        throw new TypeError(errSrc + "Optional parameter 'dependencies' should be an array of objects of type 'String'. Got: "+ Object.prototype.toString.call(dependencies[i]));
                     }
                 }
             }
