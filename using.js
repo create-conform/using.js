@@ -482,7 +482,12 @@ var using;
         mod.factory = system? function(request) { return define.Loader.get(system).factory(mod, f, request); } : f;
 
         // create definition and add to memory cache
-        cache[id] = mod;
+        if (id) {
+            cache[id] = mod;
+        }
+        else {
+            cache.push(mod);
+        }
     };
     // parameters for overriding default function parameters when calling define, or for
     // adding custom parameters that the loader can read
