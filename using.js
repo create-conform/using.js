@@ -477,7 +477,7 @@ var using;
             // add context for binder
             Array.prototype.unshift.call(arguments, factory);
 
-            return new (Function.prototype.bind.apply(factory, arguments));
+            return factory.apply(factory, arguments);
         };
         mod.factory = system? function(request) { return define.Loader.get(system).factory(mod, f, request); } : f;
 
