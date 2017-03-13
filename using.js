@@ -585,6 +585,7 @@ var using;
     define.Module = Module;
 
     // require files in the context of the given id
+    var requireCache = [];
     define.getRequire = function(moduleId) {
         return function(id, opt_allowUpdate) {
             if (!moduleId || cache[moduleId]) {
@@ -592,7 +593,10 @@ var using;
                     if (id.substr(0,2) !== "./") {
                         id = "./" + id;
                     }
-                    return require(id);
+                    if (!requireCache[id]) {
+                        requireCache[id] = require(id);
+                    }
+                    return requireCache[id];
                 }
                 return function () {
                     throw new Error("Runtime does not support 'require'.");
