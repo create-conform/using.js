@@ -589,6 +589,9 @@ var using;
         return function(id, opt_allowUpdate) {
             if (!moduleId || cache[moduleId]) {
                 if (typeof require === "function") {
+                    if (id.substr(0,2) !== "./") {
+                        id = "./" + id;
+                    }
                     return require(id);
                 }
                 return function () {
