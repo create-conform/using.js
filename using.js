@@ -783,5 +783,5 @@ var using;
 })();
 
 if (typeof require === "function" && require.main) {
-    return using;
+    return module.exports = using;
 }
