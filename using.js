@@ -781,3 +781,7 @@ var using;
         global.define = define;
     }
 })();
+
+if (typeof require === "function" && require.main) {
+    return using;
+}
