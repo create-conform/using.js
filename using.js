@@ -605,7 +605,13 @@ var using;
             if (id.substr(id.length -1) == "/") {
                 id = id.substr(0, id.length - 2);
             }
-            id += "*";
+            var idxSlash = id.indexOf("/");
+            if (idxSlash > -1) {
+                id = id.substr(0,idxSlash) + "*" + id.substr(idxSlash);
+            }
+            else {
+                id += "*";
+            }
             return cache[moduleId].dependencies.get(id, opt_allowUpdate);
         };
     };
