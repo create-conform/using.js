@@ -584,6 +584,29 @@ var using;
     // module definition object
     define.Module = Module;
 
+    // require files in the context of the given id
+    define.getRequire = function(moduleId) {
+        return function(id, opt_allowUpdate) {
+            if (!moduleId || cache[moduleId]) {
+                if (typeof require === "function") {
+                    return require(id);
+                }
+                return function () {
+                    throw new Error("Runtime does not support 'require'.");
+                };
+            }
+            // parse get string
+            if (id.substr(0,2) == "./") {
+                id = id.substr(2);
+            }
+            if (id.substr(id.length -1) == "/") {
+                id = id.substr(0, id.length - 2);
+            }
+            id += "*";
+            return cache[moduleId].dependencies.get(id, opt_allowUpdate);
+        };
+    };
+
     // this property can be used to check if define is the using.js variant instead of the
     // AMD variant
     define.using = true;
