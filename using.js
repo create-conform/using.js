@@ -23,7 +23,7 @@ var using;
     var errMiss = "using.js: error-missing-feature. The '";
     var errMissTail = "' feature is not supported by the runtime.";
     if (!Function || !Function.prototype || !Function.prototype.bind) {
-        if (console && console.error) {
+        if (typeof console != "undefined" && console.error) {
             console.error(errMiss + "Function.prototype.bind" + errMissTail);
         }
         else {
@@ -31,7 +31,7 @@ var using;
         }
     }
     if (!Array || !Array.prototype || !Array.prototype.map) {
-        if (console && console.error) {
+        if (typeof console != "undefined" && console.error) {
             console.error(errMiss + "Array.prototype.map" + errMissTail);
         }
         else {
@@ -39,7 +39,7 @@ var using;
         }
     }
     if (!Object || !Object.defineProperty) {
-        if (console && console.error) {
+        if (typeof console != "undefined" && console.error) {
             console.error(errMiss + "Object.defineProperty" + errMissTail);
         }
         else {
@@ -47,7 +47,7 @@ var using;
         }
     }
     if (typeof Promise === "undefined") {
-        if (console && console.error) {
+        if (typeof console != "undefined" && console.error) {
             console.error(errMiss + "Promise" + errMissTail);
         }
         else {
