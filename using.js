@@ -129,7 +129,7 @@ var using;
         });
         Object.defineProperty(self, "state", {
             get: function() {
-                return self.module || (done && self.err.length == 0)? using.STATE_SUCCESS : (done? using.STATE_ERROR : using.STATE_INITIAL);
+                return ((self.module || done) && self.err.length == 0)? using.STATE_SUCCESS : (done? using.STATE_ERROR : using.STATE_INITIAL);
             }
         });
 
