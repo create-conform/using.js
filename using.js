@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
 // using.js
-// v2.1.0
+// v2.1.1
 //
 //    A cross-platform, expandable module loader for javascript.
 //
@@ -579,7 +579,7 @@ var using;
                     console.error("An error occurred inside a loader registered callback for system '" + system + "'.", e);
                 }
             }
-            loaderCallbacks.splice(0,1);
+            loaderCallbacks[system].splice(0,1);
         }
     };
     define.Loader.get = function(system) {
