@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
 // using.js
-// v2.0.0
+// v2.1.0
 //
 //    A cross-platform, expandable module loader for javascript.
 //
@@ -547,6 +547,7 @@ var using;
 
     // loaders that process define requests
     var loaders = {};
+    var loaderCallbacks = {};
     define.Loader = Loader;
     define.Loader.register = function(system, fn) {
         var errSrc = "define.loaders.register(system, fn): ";
@@ -568,6 +569,18 @@ var using;
         }
 
         loaders[system] = fn;
+
+        while (loaderCallbacks[system] && loaderCallbacks[system].length > 0) {
+            try {
+                loaderCallbacks[system][0](fn);
+            }
+            catch(e) {
+                if (typeof console != "undefined") {
+                    console.error("An error occurred inside a loader registered callback for system '" + system + "'.", e);
+                }
+            }
+            loaderCallbacks.splice(0,1);
+        }
     };
     define.Loader.get = function(system) {
         var errSrc = "define.loaders.get(system): Invalid loader. ";
@@ -580,6 +593,15 @@ var using;
 
         return loaders[system];
     };
+    define.Loader.waitFor = function(system, callback) {
+        if (loaders[system]) {
+            callback(loaders[system]);
+            return;
+        }
+
+        loaderCallbacks[system] = loaderCallbacks[system] || [];
+        loaderCallbacks[system].push(callback);
+    };
 
     // module definition object
     define.Module = Module;
@@ -588,7 +610,7 @@ var using;
     var requireCache = [];
     define.getRequire = function(moduleId) {
         return function(id, opt_allowUpdate) {
-            if (!moduleId || cache[moduleId]) {
+            if (!moduleId || !cache[moduleId]) {
                 if (typeof require === "function") {
                     if (!requireCache[id]) {
                         requireCache[id] = require(id);
