@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
 // using.js
-// v2.1.1
+// v2.2.0
 //
 //    A cross-platform, expandable module loader for javascript.
 //
@@ -608,7 +608,7 @@ var using;
 
     // require files in the context of the given id
     var requireCache = [];
-    define.getRequire = function(moduleId) {
+    define.getRequire = function(moduleId, original) {
         return function(id, opt_allowUpdate) {
             if (!moduleId || !cache[moduleId]) {
                 if (typeof require === "function") {
@@ -624,6 +624,15 @@ var using;
             // parse get string
             if (id.substr(0,2) == "./") {
                 id = id.substr(2);
+            }
+            else if (original) {
+                //try original require first
+                try {
+                    return original(id);
+                }
+                catch(e) {
+                    // the original could not resolve
+                }
             }
             if (id.substr(id.length -1) == "/") {
                 id = id.substr(0, id.length - 2);
