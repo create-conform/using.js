@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
 // using.js
-// v2.2.0
+// v2.2.1
 //
 //    A cross-platform, expandable module loader for javascript.
 //
@@ -814,5 +814,5 @@ var using;
 })();
 
 if (typeof require === "function" && require.main) {
-    return module.exports = using;
+    module.exports = using;
 }
