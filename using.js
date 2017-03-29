@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
 // using.js
-// v2.2.1
+// v2.2.2
 //
 //    A cross-platform, expandable module loader for javascript.
 //
@@ -432,8 +432,8 @@ var using;
                 }
             }
         }
-        if (Object.prototype.toString.call(factory) !== "[object Function]") {
-            throw new TypeError(errSrc + "Mandatory parameter 'factory' should be an object of type 'Function'.");
+        if (Object.prototype.toString.call(factory) !== "[object Function]" && Object.prototype.toString.call(factory) !== "[object Object]") {
+            throw new TypeError(errSrc + "Mandatory parameter 'factory' should be of type 'Function' or 'Object'.");
         }
 
         if (Object.prototype.toString.call(system) !== "[object String]" && system) {
