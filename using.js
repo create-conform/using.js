@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
 // using.js
-// v2.3.0
+// v2.3.1
 //
 //    A cross-platform, expandable module loader for javascript.
 //
@@ -69,7 +69,7 @@ var using;
         this.parameters = null;
 
         // get a dependency by it's id (wildcard * allowed, takes highest alphanumeric match, keeps dots and slashes into account)
-        this.dependencies.get = function(id, opt_updatable, request) {
+        this.dependencies.get = function(id, opt_upgradable, request) {
             if (!self.dependencies || Object.prototype.toString.call(self.dependencies) !== "[object Array]") {
                 return;
             }
@@ -84,7 +84,7 @@ var using;
 
             // compare by search string
             var dependencies;
-            if (!opt_updatable || opt_updatable == "none") {
+            if (!opt_upgradable) {
                 dependencies = [];
                 for (var d in self.dependencies) {
                     if (self.dependencies[d] instanceof Module) {
@@ -95,7 +95,7 @@ var using;
 
             var sorted = sortById(dependencies? dependencies : cache, "desc");
             for (var d in sorted) {
-                if (!isNaN(d) && sorted[d] instanceof Module && compareId(sorted[d].id, id, opt_updatable)) {
+                if (!isNaN(d) && sorted[d] instanceof Module && compareId(sorted[d].id, id, opt_upgradable)) {
                     return sorted[d].factory(request);
                 }
             }
@@ -493,7 +493,7 @@ var using;
     define.cache = {};
     // get a module by it's id (wildcard * allowed, takes highest alphanumeric match, takes
     // dots and slashes into account)
-    define.cache.get = function (id, opt_updatable) {
+    define.cache.get = function (id, opt_upgradable) {
         if (!id) {
             var last;
             for (var i in cache) {
@@ -501,10 +501,10 @@ var using;
             }
             return last;
         }
-        if (opt_updatable) {
+        if (opt_upgradable) {
             var cacheSorted = sortById(cache, "desc");
             for (var m in cacheSorted) {
-                if (compareId(cacheSorted[m].id, id, opt_updatable)) {
+                if (compareId(cacheSorted[m].id, id, opt_upgradable)) {
                     return cacheSorted[m];
                 }
             }
@@ -607,7 +607,7 @@ var using;
     // require files in the context of the given id
     var requireCache = [];
     define.getRequire = function(moduleId, original) {
-        return function(id, opt_updatable) {
+        return function(id, opt_upgradable) {
             if (!moduleId || !cache[moduleId]) {
                 if (typeof require === "function") {
                     if (!requireCache[id]) {
@@ -647,7 +647,7 @@ var using;
                 }
             }
             if (!result) {
-                result = cache[moduleId].dependencies.get(id, opt_updatable);
+                result = cache[moduleId].dependencies.get(id, opt_upgradable);
             }
             return result;
         };
@@ -732,6 +732,10 @@ var using;
     using.STATE_SUCCESS = "state-success";
     using.STATE_ERROR = "state-error";
     using.DEPENDENCY_MODULE = "module";
+    using.UPGRADABLE_NONE = null;
+    using.UPGRADABLE_PATCH = "patch";
+    using.UPGRADABLE_MINOR = "minor";
+    using.UPGRADABLE_MAJOR = "major";
     using.ERROR_PACKAGE = "error-package";
     using.ERROR_INVALID_REQUEST = "error-invalid-request";
     using.ERROR_UNSUPPORTED_REQUEST = "error-unsupported-request";
@@ -800,7 +804,7 @@ var using;
         });
     }
 
-    function compareId(str, search, opt_updatable) {
+    function compareId(str, search, opt_upgradable) {
         var strRes = str.split("/");
         str = strRes[0];
         strRes = strRes.join("/").substr(str.length);
@@ -808,7 +812,7 @@ var using;
         search = searchRes[0];
         searchRes = searchRes.join("/").substr(search.length);
         var groups = 0;
-        switch (opt_updatable) {
+        switch (opt_upgradable) {
             case "patch":
                 groups = 1;
                 break;
