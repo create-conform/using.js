@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
 // using.js
-// v2.2.2
+// v2.3.0
 //
 //    A cross-platform, expandable module loader for javascript.
 //
@@ -69,7 +69,7 @@ var using;
         this.parameters = null;
 
         // get a dependency by it's id (wildcard * allowed, takes highest alphanumeric match, keeps dots and slashes into account)
-        this.dependencies.get = function(id, allowUpdate, request) {
+        this.dependencies.get = function(id, opt_updatable, request) {
             if (!self.dependencies || Object.prototype.toString.call(self.dependencies) !== "[object Array]") {
                 return;
             }
@@ -84,7 +84,7 @@ var using;
 
             // compare by search string
             var dependencies;
-            if (!allowUpdate) {
+            if (!opt_updatable || opt_updatable == "none") {
                 dependencies = [];
                 for (var d in self.dependencies) {
                     if (self.dependencies[d] instanceof Module) {
@@ -95,7 +95,7 @@ var using;
 
             var sorted = sortById(dependencies? dependencies : cache, "desc");
             for (var d in sorted) {
-                if (!isNaN(d) && sorted[d] instanceof Module && compareId(sorted[d].id, id)) {
+                if (!isNaN(d) && sorted[d] instanceof Module && compareId(sorted[d].id, id, opt_updatable)) {
                     return sorted[d].factory(request);
                 }
             }
@@ -385,7 +385,7 @@ var using;
         var system = null;
         var errSrc = "define(id, dependencies, factory): Invalid module definition. ";
 
-            // set correct parameters, from last to first
+        // set correct parameters, from last to first
         if (Object.prototype.toString.call(dependencies) === "[object Function]") {
             factory = dependencies;
             dependencies = null;
@@ -493,20 +493,18 @@ var using;
     define.cache = {};
     // get a module by it's id (wildcard * allowed, takes highest alphanumeric match, takes
     // dots and slashes into account)
-    define.cache.get = function (id) {
+    define.cache.get = function (id, opt_updatable) {
         if (!id) {
-            var last = null;
+            var last;
             for (var i in cache) {
                 last = cache[i];
             }
             return last;
         }
-        var asteriskIdx = id.indexOf("*");
-        if (asteriskIdx > 0) {
+        if (opt_updatable) {
             var cacheSorted = sortById(cache, "desc");
             for (var m in cacheSorted) {
-                //if (cacheSorted[m].id.indexOf(id.substr(0,asteriskIdx)) == 0) {
-                if (compareId(cacheSorted[m].id, id)) {
+                if (compareId(cacheSorted[m].id, id, opt_updatable)) {
                     return cacheSorted[m];
                 }
             }
@@ -609,7 +607,7 @@ var using;
     // require files in the context of the given id
     var requireCache = [];
     define.getRequire = function(moduleId, original) {
-        return function(id, opt_allowUpdate) {
+        return function(id, opt_updatable) {
             if (!moduleId || !cache[moduleId]) {
                 if (typeof require === "function") {
                     if (!requireCache[id]) {
@@ -618,33 +616,40 @@ var using;
                     return requireCache[id];
                 }
                 return function () {
-                    throw new Error("Runtime does not support 'require'.");
+                    throw new Error("Runtime environment does not implement 'require'.");
                 };
             }
-            // parse get string
-            if (id.substr(0,2) == "./") {
-                id = id.substr(2);
-            }
-            else if (original) {
-                //try original require first
+            // try original require first
+            var result;
+            if (original) {
                 try {
-                    return original(id);
+                    result = original(id);
                 }
                 catch(e) {
-                    // the original could not resolve
+                    if (e.code !== "MODULE_NOT_FOUND") {
+                        throw e;
+                    }
+                    // parse get string
+                    if (id.substr(0,2) == "./") {
+                        id = id.substr(2);
+
+                        try {
+                            result = original(id);
+                        }
+                        catch(e) {
+                            if (e.code !== "MODULE_NOT_FOUND") {
+                                throw e;
+                            }
+                            // the original could not resolve
+                            result = null;
+                        }
+                    }
                 }
             }
-            if (id.substr(id.length -1) == "/") {
-                id = id.substr(0, id.length - 2);
+            if (!result) {
+                result = cache[moduleId].dependencies.get(id, opt_updatable);
             }
-            var idxSlash = id.indexOf("/");
-            if (idxSlash > -1) {
-                id = id.substr(0,idxSlash) + "*" + id.substr(idxSlash);
-            }
-            else {
-                id += "*";
-            }
-            return cache[moduleId].dependencies.get(id, opt_allowUpdate);
+            return result;
         };
     };
 
@@ -794,11 +799,62 @@ var using;
             return arr[el.name];
         });
     }
-    function compareId(str, search) {
-        // escape special characters in id
-        search = search.replace(/\./g, "\\."); //dot
 
-        return new RegExp("^" + search.split("*").join(".*") + "$").test(str);
+    function compareId(str, search, opt_updatable) {
+        var strRes = str.split("/");
+        str = strRes[0];
+        strRes = strRes.join("/").substr(str.length);
+        var searchRes = search.split("/");
+        search = searchRes[0];
+        searchRes = searchRes.join("/").substr(search.length);
+        var groups = 0;
+        switch (opt_updatable) {
+            case "patch":
+                groups = 1;
+                break;
+            case "minor":
+                groups = 2;
+                break;
+            case "major":
+                groups = 3;
+                break;
+        }
+        if (groups === 0) {
+            return str == search;
+        }
+        var parts = search.split(".");
+        var numbers = 0;
+        for (var p = parts.length; p > 0; p--) {
+            if (isNaN(parts[p - 1])) {
+                break;
+            }
+            numbers++;
+        }
+        var match = str.split(".");
+        // if parts are not equal, they can't match
+        if (match.length != (parts.length - numbers) + 3 || strRes != searchRes) {
+            return false;
+        }
+        // check if id string without number parts match
+        for (var p = 0; p < parts.length - numbers; p++) {
+            if (match.length < p || match[p] != parts[p]) {
+                return false;
+            }
+        }
+        // check the number parts
+        for (var g = 0; g < 3; g++) {
+            if (g < 3 - numbers) {
+                continue;
+            }
+            if (g < groups && match[match.length - 1 - g] < parts[parts.length - 1 - (g - (3 - numbers))]) {
+                return false;
+            }
+            else if(g >= groups && match[match.length - 1 - g] != parts[parts.length - 1 - (g - (3 - numbers))]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////
