@@ -652,6 +652,18 @@ var using;
             return result;
         };
     };
+    define.getUsing = function(moduleId) {
+        return function() {
+            var args = [];
+            for (var a in arguments) {
+                args.push(arguments[a]);
+            }
+            if (cache[moduleId]) {
+                args.push(cache[moduleId]);
+            }
+            return using.apply(this, args);
+        };
+    };
 
     // this property can be used to check if define is the using.js variant instead of the
     // AMD variant
