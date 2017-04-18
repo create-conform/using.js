@@ -190,6 +190,7 @@ var using;
 
         var progress = 0;
 
+        this.context = null;
         this.requests = [];
         this.err = [];
         Object.defineProperty(self, "progress", {
@@ -678,8 +679,12 @@ var using;
         // create handler
         var handler = new Using();
 
+        if (arguments[arguments.length - 1] instanceof Module) {
+            handler.context = arguments[arguments.length - 1];
+        }
+
         // enumerate requests
-        for(var a=0;a<arguments.length;a++) {
+        for(var a=0;a<arguments.length - (handler.context? 1 : 0);a++) {
             var request = arguments[a];
             var match = false;
 
@@ -693,7 +698,7 @@ var using;
             for (var l in loaders) {
                 var loader = null;
                 try {
-                    loader = new loaders[l](request);
+                    loader = new loaders[l](request, handler);
                 } catch(e) {
                     if (!(e instanceof RangeError)) {
                         handler.err.push(new Error(using.ERROR_UNEXPECTED, "The loader for request '" + JSON.stringify(request) + "' has thrown an unexpected error.", e, request));
