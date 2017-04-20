@@ -631,7 +631,7 @@ var using;
                         throw e;
                     }
                     // parse get string
-                    if (id.substr(0,2) == "./") {
+                    if (id.length > 2 && id.substr(0,2) == "./") {
                         id = id.substr(2);
 
                         try {
@@ -648,6 +648,7 @@ var using;
                 }
             }
             if (!result) {
+                id += id.indexOf("/", id.length > 2 && id.substr(0,2) == "./"? 2 : 0) == -1? "/" : "";
                 result = cache[moduleId].dependencies.get(id, opt_upgradable);
             }
             return result;
