@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
 // using.js
-// v2.3.3
+// v2.3.4
 //
 //    A cross-platform, expandable module loader for javascript.
 //
@@ -828,9 +828,15 @@ var using;
         }
         var strRes = str.split("/");
         str = strRes[0];
+        if (strRes.length == 1) {
+            strRes[1] = "";
+        }
         strRes = strRes.join("/").substr(str.length);
         var searchRes = search.split("/");
         search = searchRes[0];
+        if (searchRes.length == 1) {
+            searchRes[1] = "";
+        }
         searchRes = searchRes.join("/").substr(search.length);
         var groups = 0;
         switch (opt_upgradable) {
