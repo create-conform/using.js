@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
 // using.js
-// v2.3.4
+// v2.3.5
 //
 //    A cross-platform, expandable module loader for javascript.
 //
@@ -609,6 +609,7 @@ var using;
     var requireCache = [];
     define.getRequire = function(moduleId, original) {
         return function(id, opt_upgradable) {
+            this.original = original;
             if (!moduleId || !cache[moduleId]) {
                 if (typeof require === "function") {
                     if (!requireCache[id]) {
