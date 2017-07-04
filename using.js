@@ -541,9 +541,9 @@ var using;
                 resolve();
             }
 
-            function waiterReject() {
+            function waiterReject(e) {
                 promise.done = true;
-                reject();
+                reject(e);
             }
 
             try {
