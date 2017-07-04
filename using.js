@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
 // using.js
-// v2.4.1
+// v2.5.0
 //
 //    A cross-platform, expandable module loader for javascript.
 //
@@ -138,7 +138,7 @@ var using;
         // bind the fetch function to the loader function
         this.fetch = function(callback) {
             try {
-                function moduleLoaded(module) {
+                function moduleLoaded(module, gracefull) {
                     if (done) {
                         self.err.push(new Error(using.ERROR_UNEXPECTED, "The Loader already finished, but tried to invoke the fetch callback again."));
                         return;
@@ -153,7 +153,7 @@ var using;
                         self.err.push(new Error(using.ERROR_UNEXPECTED, "An unexpected error occurred in the Loader while trying to fetch the request '" + JSON.stringify(request) + "'. The Loader did not return an object of type 'Module'."));
                         self.events.fire(using.EVENT_REQUEST_ERROR);
                     }
-                    else if (self.err.length > 0) {
+                    else if (self.err.length > 0 && !gracefull) {
                         self.events.fire(using.EVENT_REQUEST_ERROR);
                     }
                     else {
