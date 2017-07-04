@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
 // using.js
-// v2.3.5
+// v2.4.1
 //
 //    A cross-platform, expandable module loader for javascript.
 //
@@ -95,7 +95,7 @@ var using;
 
             var sorted = sortById(dependencies? dependencies : cache, "desc");
             for (var d in sorted) {
-                if (!isNaN(d) && sorted[d] instanceof Module && compareId(sorted[d].id, id, opt_upgradable? opt_upgradable : using.UPGRADABLE_MAJOR)) {
+                if (!isNaN(d) && sorted[d] instanceof Module && compareId(sorted[d].id, id, opt_upgradable? opt_upgradable : using.UPGRADABLE_MINOR)) {
                     return typeof sorted[d].factory === "function" ? sorted[d].factory(request) : sorted[d].factory;
                 }
             }
@@ -138,7 +138,7 @@ var using;
         // bind the fetch function to the loader function
         this.fetch = function(callback) {
             try {
-                loader(function (module) {
+                function moduleLoaded(module) {
                     if (done) {
                         self.err.push(new Error(using.ERROR_UNEXPECTED, "The Loader already finished, but tried to invoke the fetch callback again."));
                         return;
@@ -169,7 +169,21 @@ var using;
                             callback();
                         }
                     }
-                });
+                }
+
+                // check cache
+                var sorted = sortById(cache, "desc");
+                for (var d in sorted) {
+                    if (!isNaN(d) && sorted[d] instanceof Module && compareId(sorted[d].id, request.id, using.UPGRADABLE_MINOR)) {
+                        moduleLoaded(sorted[d]);
+                        break;
+                    }
+                }
+                
+                if (!self.module) {
+                    // invoke loader
+                    loader(moduleLoaded);
+                }
             }
             catch(e) {
                 done = true;
