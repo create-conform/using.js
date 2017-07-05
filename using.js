@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
 // using.js
-// v2.5.1
+// v2.5.2
 //
 //    A cross-platform, expandable module loader for javascript.
 //
@@ -535,13 +535,16 @@ var using;
     define.wait = function(fn) {
         define.parameters.wait = define.parameters.wait || [];
         //define.parameters.wait.push(new (Function.prototype.bind.apply(Promise, arguments)));
+        var done;
         var promise = new Promise(function(resolve, reject) {
             function waiterResolve() {
+                done = true;
                 promise.done = true;
                 resolve();
             }
 
             function waiterReject(e) {
+                done = true;
                 promise.done = true;
                 reject(e);
             }
@@ -550,10 +553,14 @@ var using;
                 fn(waiterResolve, waiterReject);
             }
             catch(e) {
+                done = true;
                 promise.done = true;
                 reject(e);
             }
         });
+        if (done) {
+            promise.done = true;
+        }
 
         define.parameters.wait.push(promise);
     };
