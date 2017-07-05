@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
 // using.js
-// v2.5.2
+// v2.5.3
 //
 //    A cross-platform, expandable module loader for javascript.
 //
@@ -539,13 +539,17 @@ var using;
         var promise = new Promise(function(resolve, reject) {
             function waiterResolve() {
                 done = true;
-                promise.done = true;
+                if (promise) {
+                    promise.done = true;
+                }
                 resolve();
             }
 
             function waiterReject(e) {
                 done = true;
-                promise.done = true;
+                if (promise) {
+                    promise.done = true;
+                }
                 reject(e);
             }
 
@@ -554,7 +558,9 @@ var using;
             }
             catch(e) {
                 done = true;
-                promise.done = true;
+                if (promise) {
+                    promise.done = true;
+                }
                 reject(e);
             }
         });
