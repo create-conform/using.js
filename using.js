@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
 // using.js
-// v2.5.3
+// v2.5.4
 //
 //    A cross-platform, expandable module loader for javascript.
 //
@@ -25,6 +25,7 @@ var using;
     if (!Function || !Function.prototype || !Function.prototype.bind) {
         if (typeof console != "undefined" && console.error) {
             console.error(errMiss + "Function.prototype.bind" + errMissTail);
+            return;
         }
         else {
             throw errMiss + "Function.prototype.bind" + errMissTail;
@@ -33,6 +34,7 @@ var using;
     if (!Array || !Array.prototype || !Array.prototype.map) {
         if (typeof console != "undefined" && console.error) {
             console.error(errMiss + "Array.prototype.map" + errMissTail);
+            return;
         }
         else {
             throw errMiss + "Array.prototype.map" + errMissTail;
@@ -41,6 +43,7 @@ var using;
     if (!Object || !Object.defineProperty) {
         if (typeof console != "undefined" && console.error) {
             console.error(errMiss + "Object.defineProperty" + errMissTail);
+            return;
         }
         else {
             throw errMiss + "Object.defineProperty" + errMissTail;
@@ -49,6 +52,7 @@ var using;
     if (typeof Promise === "undefined") {
         if (typeof console != "undefined" && console.error) {
             console.error(errMiss + "Promise" + errMissTail);
+            return;
         }
         else {
             throw errMiss + "Promise" + errMissTail;
