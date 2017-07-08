@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
 // using.js
-// v2.5.4
+// v2.5.5
 //
 //    A cross-platform, expandable module loader for javascript.
 //
@@ -99,7 +99,7 @@ var using;
 
             var sorted = sortById(dependencies? dependencies : cache, "desc");
             for (var d in sorted) {
-                if (!isNaN(d) && sorted[d] instanceof Module && compareId(sorted[d].id, id, opt_upgradable? opt_upgradable : using.UPGRADABLE_MINOR)) {
+                if (!isNaN(d) && sorted[d] instanceof Module && compareId(sorted[d].id, id, opt_upgradable? opt_upgradable : using.UPGRADABLE_NONE)) {
                     return typeof sorted[d].factory === "function" ? sorted[d].factory(request) : sorted[d].factory;
                 }
             }
@@ -178,7 +178,7 @@ var using;
                 // check cache
                 var sorted = sortById(cache, "desc");
                 for (var d in sorted) {
-                    if (!isNaN(d) && sorted[d] instanceof Module && compareId(sorted[d].id, request.id, using.UPGRADABLE_MINOR)) {
+                    if (!isNaN(d) && sorted[d] instanceof Module && compareId(sorted[d].id, request.id, using.UPGRADABLE_NONE)) {
                         moduleLoaded(sorted[d]);
                         break;
                     }
@@ -884,9 +884,6 @@ var using;
             case using.UPGRADABLE_MAJOR:
                 groups = 3;
                 break;
-        }
-        if (groups === 0) {
-            return str == search;
         }
         var parts = search.split(".");
         var numbers = 0;
