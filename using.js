@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
 // using.js
-// v2.6.0
+// v2.6.1
 //
 //    A cross-platform, expandable module loader for javascript.
 //
@@ -522,17 +522,12 @@ var using;
             }
             return last;
         }
-        if (opt_upgradable) {
-            var cacheSorted = sortById(cache, "desc");
-            for (var m in cacheSorted) {
-                if (compareId(cacheSorted[m].id, id, opt_upgradable)) {
-                    return cacheSorted[m];
-                }
-            }
-        }
 
-        if (cache[id]) {
-            return cache[id];
+        var cacheSorted = sortById(cache, "desc");
+        for (var m in cacheSorted) {
+            if (compareId(cacheSorted[m].id, id, opt_upgradable)) {
+                return cacheSorted[m];
+            }
         }
     };
 
