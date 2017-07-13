@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
 // using.js
-// v2.6.1
+// v2.7.0
 //
 //    A cross-platform, expandable module loader for javascript.
 //
@@ -47,15 +47,6 @@ var using;
         }
         else {
             throw errMiss + "Object.defineProperty" + errMissTail;
-        }
-    }
-    if (typeof Promise === "undefined") {
-        if (typeof console != "undefined" && console.error) {
-            console.error(errMiss + "Promise" + errMissTail);
-            return;
-        }
-        else {
-            throw errMiss + "Promise" + errMissTail;
         }
     }
 
@@ -531,47 +522,6 @@ var using;
         }
     };
 
-    // if this function is called, the wait parameter is set. The module factory needs to
-    // handle the wait promise.
-    define.wait = function(fn) {
-        define.parameters.wait = define.parameters.wait || [];
-        //define.parameters.wait.push(new (Function.prototype.bind.apply(Promise, arguments)));
-        var done;
-        var promise = new Promise(function(resolve, reject) {
-            function waiterResolve() {
-                done = true;
-                if (promise) {
-                    promise.done = true;
-                }
-                resolve();
-            }
-
-            function waiterReject(e) {
-                done = true;
-                if (promise) {
-                    promise.done = true;
-                }
-                reject(e);
-            }
-
-            try {
-                fn(waiterResolve, waiterReject);
-            }
-            catch(e) {
-                done = true;
-                if (promise) {
-                    promise.done = true;
-                }
-                reject(e);
-            }
-        });
-        if (done) {
-            promise.done = true;
-        }
-
-        define.parameters.wait.push(promise);
-    };
-
     // loaders that process define requests
     var loaders = {};
     var loaderCallbacks = {};
@@ -855,8 +805,11 @@ var using;
     }
 
     function compareId(str, search, opt_upgradable) {
-        if (!str || !search) {
+        if (!str) {
             return;
+        }
+        if (!search) {
+            return true;
         }
         var strRes = str.split("/");
         str = strRes[0];
