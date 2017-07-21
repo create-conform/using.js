@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
 // using.js
-// v2.7.1
+// v2.7.2
 //
 //    A cross-platform, expandable module loader for javascript.
 //
@@ -391,6 +391,7 @@ var using;
     // in-memory cache that contains factories for javascript resources
     var cache = [];
     var cacheCounter = 0;
+    var cacheCallbacks = {};
 
     define = function(/* optional */ id, /* optional */ dependencies, factory) {
         var parameters = {};
@@ -495,7 +496,25 @@ var using;
         mod.factory = system? function(request) { return define.Loader.get(system).factory(mod, f, request); } : f;
 
         // create definition and add to memory cache
-        cache[id || "mod-" + cacheCounter++] = mod;
+        var cId = id || "mod-" + cacheCounter++;
+        cache[cId] = mod;
+
+        // check cache callbacks
+        for (var i in cacheCallbacks) {
+            if (compareId(cId, i) || i == cId) {
+                while (cacheCallbacks[id] && cacheCallbacks[id].length > 0) {
+                    try {
+                        cacheCallbacks[id][0](mod);
+                    }
+                    catch(e) {
+                        if (typeof console != "undefined") {
+                            console.error("An error occurred inside a cache registered callback for id '" + i + "'.", e);
+                        }
+                    }
+                    cacheCallbacks[id].splice(0,1);
+                }
+            }
+        }
     };
     // parameters for overriding default function parameters when calling define, or for
     // adding custom parameters that the loader can read
@@ -520,6 +539,16 @@ var using;
                 return cacheSorted[m];
             }
         }
+    };
+    define.cache.waitFor = function(id, callback) {
+        var mod = define.cache.get(id);
+        if (mod) {
+            callback(mod);
+            return;
+        }
+
+        cacheCallbacks[id] = cacheCallbacks[id] || [];
+        cacheCallbacks[id].push(callback);
     };
 
     // loaders that process define requests
