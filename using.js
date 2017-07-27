@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
 // using.js
-// v2.8.0
+// v2.8.1
 //
 //    A cross-platform, expandable module loader for javascript.
 //
@@ -666,7 +666,7 @@ var using;
         };
     };
     define.getUsing = function(moduleId) {
-        return function() {
+        var usingInContext = function() {
             var args = [];
             for (var a in arguments) {
                 args.push(arguments[a]);
@@ -676,6 +676,8 @@ var using;
             }
             return using.apply(this, args);
         };
+        usingInContext.original = using;
+        return usingInContext;
     };
 
     // this property can be used to check if define is the using.js variant instead of the
