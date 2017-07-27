@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
 // using.js
-// v2.7.2
+// v2.8.0
 //
 //    A cross-platform, expandable module loader for javascript.
 //
@@ -64,7 +64,7 @@ var using;
         this.parameters = null;
 
         // get a dependency by it's id (wildcard * allowed, takes highest alphanumeric match, keeps dots and slashes into account)
-        this.dependencies.get = function(id, opt_upgradable, request) {
+        this.dependencies.get = function(id, opt_upgradable, request, requirer) {
             if (!self.dependencies || Object.prototype.toString.call(self.dependencies) !== "[object Array]") {
                 return;
             }
@@ -74,7 +74,7 @@ var using;
 
             // check directly
             if (self.dependencies[id] && self.dependencies[id] instanceof Module) {
-                return self.dependencies[id].factory(request);
+                return self.dependencies[id].factory(request, requirer);
             }
 
             // compare by search string
@@ -91,7 +91,7 @@ var using;
             var sorted = sortById(dependencies? dependencies : cache, "desc");
             for (var d in sorted) {
                 if (!isNaN(d) && sorted[d] instanceof Module && compareId(sorted[d].id, id, opt_upgradable? opt_upgradable : using.UPGRADABLE_NONE)) {
-                    return typeof sorted[d].factory === "function" ? sorted[d].factory(request) : sorted[d].factory;
+                    return typeof sorted[d].factory === "function" ? sorted[d].factory(request, requirer) : sorted[d].factory;
                 }
             }
 
@@ -265,7 +265,7 @@ var using;
                             for (var r = 0; r < self.requests.length; r++) {
                                 if (self.requests[r].module instanceof Module) {
                                     try {
-                                        results[r] = bypassFactory? self.requests[r].module : (Object.prototype.toString.call(self.requests[r].module.factory) !== "[object Function]"? self.requests[r].module.factory : self.requests[r].module.factory(self.requests[r].request) );
+                                        results[r] = bypassFactory? self.requests[r].module : (Object.prototype.toString.call(self.requests[r].module.factory) !== "[object Function]"? self.requests[r].module.factory : self.requests[r].module.factory(self.requests[r].request, self.context) );
                                     }
                                     catch (e) {
                                         self.err.push(new Error(using.ERROR_MODULE, e));
@@ -493,7 +493,7 @@ var using;
 
             return factory.apply(factory, arguments);
         };
-        mod.factory = system? function(request) { return define.Loader.get(system).factory(mod, f, request); } : f;
+        mod.factory = system? function(request, requirer) { return define.Loader.get(system).factory(mod, f, request, requirer); } : f;
 
         // create definition and add to memory cache
         var cId = id || "mod-" + cacheCounter++;
@@ -660,7 +660,7 @@ var using;
                     id = id.substr(2);
                 }
                 id += id.indexOf("/", 0) == -1? "/" : "";
-                result = cache[moduleId].dependencies.get(id, opt_upgradable);
+                result = cache[moduleId].dependencies.get(id, opt_upgradable, null, cache[moduleId]);
             }
             return result;
         };
