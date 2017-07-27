@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 //
 // using.js
-// v2.8.2
+// v2.8.3
 //
 //    A cross-platform, expandable module loader for javascript.
 //
@@ -143,6 +143,11 @@ var using;
 
                     if (module instanceof Module) {
                         self.module = module;
+
+                        if (module.parameters.callFactoryAfterFetch) {
+                            module.factory();
+                        }
+
                         self.events.fire(using.EVENT_REQUEST_SUCCESS);
                     }
                     else if (module) {
@@ -154,10 +159,6 @@ var using;
                     }
                     else {
                         self.events.fire(using.EVENT_REQUEST_SUCCESS);
-                    }
-
-                    if (module.parameters.callFactoryAfterFetch) {
-                        module.factory();
                     }
 
                     if (callback) {
